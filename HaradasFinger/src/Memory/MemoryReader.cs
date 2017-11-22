@@ -5,29 +5,40 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using NLog;
 
 namespace Memory {
     class MemoryReader {
         
 
         public MemoryReader(string processName) {
+            _logger = LogManager.GetCurrentClassLogger();
             _readBuffer = new byte[4];
             _process = new Process[1];
+            AcquireProcess(processName);
+        }
+
+        public bool AcquireProcess(string processName) {
             _process = Process.GetProcessesByName(processName);
             try {
                 _baseAddress = _process[0].MainModule.BaseAddress;
                 _hProcess = _process[0].Handle;
             } catch {
-                Console.WriteLine("Could not find process...");
-                throw;
+                return false;
             }
-            
-
             _hOpenProc = MemoryInterop.OpenProcess(PROCESS_VM_READ, 0, _process[0].Id);
+
+            return true;
         }
 
         public long ReadValueAtAddress(UInt64 readAddress) { //for reading a single value
-            byte[] temp = Read((IntPtr)readAddress, 4);
+            byte[] temp;
+            try {
+                temp = Read((IntPtr)readAddress, 4);
+            } catch (Exception ex) {
+                //throw ex;
+                return 0;
+            }
             long lTemp = BitConverter.ToInt64(temp, 0);
             return lTemp;
         }
@@ -47,11 +58,12 @@ namespace Memory {
                 dwResult = MemoryInterop.ReadProcessMemory(_hProcess, readAddress, readBuf, size, lpNumberOfBytesRead);
             } catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
+                throw ex;
             }
 
             if (dwResult <= 0) {
                 errorVal = MemoryInterop.GetLastError();
-                Console.WriteLine("ReadProcessMemory failed with error {0}", errorVal);
+                _logger.Trace("ReadProcessMemory failed with error {0}", errorVal);
             } else {
                 //turn the bytes into a valid address
                 Byte indexer = 0;
@@ -72,5 +84,7 @@ namespace Memory {
         private IntPtr _hProcess;
         private IntPtr _hOpenProc;
         private const uint PROCESS_VM_READ = 0x0010;
+
+        private Logger _logger;
     }
 }

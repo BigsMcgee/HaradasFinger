@@ -14,23 +14,20 @@ namespace Tekken7 {
             UpdateMainPointers();
         }
 
-        public void UpdateMainPointers() {
+        public bool UpdateMainPointers() {
             _gameObject = GetMainPointer();
             _playerAddr = (ulong)ReadValueAtAddress(_gameObject);
+
+            if (_playerAddr == 0 || _gameObject == 0) { //these will NEVER be zero while in game, only if in the menu/loading/etc.
+                return false;
+            }
+            return true;
         }
 
         public long ReadValue(UInt64 offset) {
             return ReadValueAtAddress(_playerAddr + offset);
         }
         
-        private TekkenFrame ProcessPlayersDataBlock(byte[] data, long frameCount) {
-            TekkenFrame oneFrame = new TekkenFrame((uint)frameCount);
-
-            oneFrame.InitPlayers(data);
-
-            return oneFrame;
-        }
-
         public uint ReadFrameCount(uint index) {
             ulong potentialAddr = _playerAddr + (TekkenDataOffsets.ROLLBACK_FRAME_OFFSET * index); //store these or just recalculate?
             return (uint)ReadValueAtAddress(potentialAddr + (ulong)TekkenDataOffsets.GameStateOffsets.FRAME_COUNT);
@@ -47,7 +44,9 @@ namespace Tekken7 {
         }
         
         private UInt64 GetMainPointer() {
+         
             return (UInt64)ReadValueAtAddress(_mainAddr);
+
         }
 
         public UInt64 PlayerAddr {

@@ -67,27 +67,11 @@ namespace Tekken7 {
         }
 
         #region PROPERTIES
-        /// <summary>
-        /// Returns 0 if neither player attacked, 1 if player 1 attacked, 2 if player 2 attacked
-        /// </summary>
-        public bool DidEitherPlayerAttack {
-            get {
-                if (_player1.DidAttack || _player2.DidAttack) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
+        public bool DidEitherPlayerAttack => (_player1.DidAttack || _player2.DidAttack);
 
-        public bool DidPlayer1Attack {
-            get {
-                if (_player1.DidAttack)
-                    return true;
-                else
-                    return false;
-            }
-        }
+        public bool DidPlayer1Attack => (_player1.DidAttack);
+
+        public bool DidPlayer2Attack => (_player2.DidAttack);
 
         public bool IsHitOutcomeNonZero {
             get {
@@ -99,17 +83,12 @@ namespace Tekken7 {
             }
         }
 
-        public uint P1RecoveryFrames {
-            get {
-                return (_player1._recovery - _player1._moveTimer);
-            }
-        }
+        public bool IsP1HitOutcomeNonZero => (_player2._hitResult != 0);
+        public bool IsP2HitOutcomeNonZero => (_player1._hitResult != 0);
 
-        public uint P2RecoveryFrames {
-            get {
-                return (_player2._recovery - _player2._moveTimer);
-            }
-        }
+        //TODO: REDO THESE PROPERLY. TOOLASSISTED FIGURED IT OUT, SO CAN I
+        public uint P1RecoveryFrames => (_player1._recovery - _player1._attackStartup);
+        public uint P2RecoveryFrames => (_player2._recovery - _player2._attackStartup);
 
         //simple accessors
         public PlayerDataModel Player1 => _player1;
@@ -125,16 +104,13 @@ namespace Tekken7 {
     class TekkenFrameCollection : MemoryStore {
 
         private TekkenFrameCollection() {
+            _frameList = new MemoryFrame[100000]; //not sure what to do about array sizing yet
             _frameDict = new Dictionary<uint, MemoryFrame>();
-            _frameList = new TekkenFrame[100000]; //not sure what to do about array sizing yet
             logger = LogManager.GetCurrentClassLogger();
         }
 
         public void Clear() {
-            //_frameDict.Clear();
             Array.Clear(_frameList, 0, _frameList.Length);
-            logger.Trace("Cleared current frame list");
-            //Console.WriteLine("Cleared current frame list");
         }
 
         public int AddFrames(ArrayList eightFrames) {
@@ -142,8 +118,13 @@ namespace Tekken7 {
             for(int i = 0; i < 8; i++) {
                 if (eightFrames[i] != null) {
                     TekkenFrame frame = eightFrames[i] as TekkenFrame;
-                    if (AddFrame(frame)) {
-                        added++;
+                    try {
+                        if (AddFrame(frame)) {
+                            added++;
+                        }
+                    } catch (Exception ex) {
+                        logger.Trace("failed to insert frame: {0}", frame.FrameNum);
+                        logger.Trace(ex.ToString());
                     }
                 }
             }
@@ -166,7 +147,11 @@ namespace Tekken7 {
                     //try reading the move_timer and jumping back that far
                     int jumpBack = 0;
                     jumpBack = (int)(frame.Player1._moveTimer - (int)frame.Player1._attackStartup) - 1;
-                    frame = localFrameList[i - (jumpBack)] as TekkenFrame;
+                    try {
+                        frame = localFrameList[i - (jumpBack)] as TekkenFrame;
+                    } catch (IndexOutOfRangeException ex) {
+                        //do nothing i guess
+                    }
                     if (frame == null)
                         continue;
                         //yay we found the start of the animation
@@ -175,7 +160,57 @@ namespace Tekken7 {
                 }
             }
 
-            logger.Trace("No attack frame found");
+            //logger.Trace("No attack frame found");
+            return null;
+        }
+
+        //TODO: Consolidate the functionality of this method, repeat code is bad
+        public TekkenFrame FindLatestPlayer2StartupTransition() {
+            TekkenFrame frame = null;
+            var localFrameList = _frameList.ToArray();
+            int lastIndex = localFrameList.GetUpperBound(0);
+            for (int i = lastIndex; i > 0; --i) {
+                frame = localFrameList[i] as TekkenFrame;
+                if (frame == null)
+                    continue;
+                if (frame.DidPlayer2Attack) {
+                    //try reading the move_timer and jumping back that far
+                    int jumpBack = 0;
+                    jumpBack = (int)(frame.Player2._moveTimer - (int)frame.Player2._attackStartup) - 1;
+                    frame = localFrameList[i - (jumpBack)] as TekkenFrame;
+                    if (frame == null)
+                        continue;
+                    //yay we found the start of the animation
+                    //IDEA: from here, try moving forward to the end of the startup region, try to grab frame data from here. Can I move straight there?
+                    return frame;
+                }
+            }
+
+            //logger.Trace("No attack frame found");
+            return null;
+        }
+
+        public TekkenFrame FindLatestStartupTransition(uint lastFrameRead) {
+            TekkenFrame retFrame = null;
+            for (uint i = lastFrameRead; i > 0; --i) {
+                retFrame = _frameList[i] as TekkenFrame;
+                if (retFrame == null)
+                    continue;
+                if(retFrame.DidEitherPlayerAttack) {
+                    int jumpback;
+                    if (retFrame.DidPlayer1Attack) {
+                        jumpback = (int)(retFrame.Player1._moveTimer - (int)retFrame.Player1._attackStartup) - 1;
+                    } else {
+                        jumpback = (int)(retFrame.Player2._moveTimer - (int)retFrame.Player2._attackStartup) - 1;
+                    }
+
+                    retFrame = _frameList[i - jumpback] as TekkenFrame;
+                    if (retFrame == null)
+                        continue;
+
+                    return retFrame;
+                }
+            }
             return null;
         }
 

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using Tekken7;
+using System.Speech.Synthesis;
 
 namespace HaradasFinger
 {
@@ -14,20 +15,24 @@ namespace HaradasFinger
 
         public FrameViewModel() {
             _dataController = TekkenDataController.Instance;
+            //_speech = new SpeechSynthesizer();
             _player1FrameAdvantage = ((Int64)0).ToString();
             _player2FrameAdvantage = ((Int64)0).ToString();
-            _testBullshit1 = -69;
-            _testBullshit2 = 69;
             //TEST
             Task.Run(async () => {
                 Int64 i = 0;
                 while (true) {
-                    _dataController.Update();
-                    Player1FrameAdvantage = _dataController.TestGetLastMove().ToString();
                     await Task.Delay(67);
+                    _dataController.Update();
+                    Player1FrameAdvantage = _dataController.GetP1LastMove().ToString();//_dataController.Player1FrameAdvantage.ToString();
+                    Player2FrameAdvantage = _dataController.GetP2LastMove().ToString();//_dataController.Player2FrameAdvantage.ToString();
+                    Player1Startup = _dataController.P1Startup;
+                    Player2Startup = _dataController.P2Startup;
+                    LatestFrameNum = _dataController.CurrentFrameNum;
                 }
             }
             );
+            
         }
 
         //Display Properties
@@ -43,6 +48,7 @@ namespace HaradasFinger
 
                 _player1FrameAdvantage = value;
                 PropertyChanged(this, new PropertyChangedEventArgs(nameof(Player1FrameAdvantage)));
+                //_speech.Speak(Player1FrameAdvantage);
             }
         }
 
@@ -62,23 +68,50 @@ namespace HaradasFinger
             }
         }
 
-        public int TestBullshit1 {
+        public uint Player1Startup {
             get {
-                return _testBullshit1;
+                return _player1Startup;
+            } set {
+                if (value == _player1Startup)
+                    return;
+
+                _player1Startup = value;
+                PropertyChanged(this, new PropertyChangedEventArgs(nameof(Player1Startup)));
             }
         }
 
-        public int TestBullshit2 {
+        public uint Player2Startup {
             get {
-                return _testBullshit2;
+                return _player2Startup;
+            }
+            set {
+                if (value == _player2Startup)
+                    return;
+
+                _player2Startup = value;
+                PropertyChanged(this, new PropertyChangedEventArgs(nameof(Player2Startup)));
+            }
+        }
+
+        public uint LatestFrameNum {
+            get {
+                return _latestFrameNum;
+            } set {
+                if (value == _latestFrameNum)
+                    return;
+
+                _latestFrameNum = value;
+                PropertyChanged(this, new PropertyChangedEventArgs(nameof(LatestFrameNum)));
             }
         }
 
         private string _player1FrameAdvantage;
         private string _player2FrameAdvantage;
+        private uint _player1Startup;
+        private uint _player2Startup;
+        private uint _latestFrameNum;
 
-        private int _testBullshit1;
-        private int _testBullshit2;
         TekkenDataController _dataController;
+        private SpeechSynthesizer _speech;
     }
 }

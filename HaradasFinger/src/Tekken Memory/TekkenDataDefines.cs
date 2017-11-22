@@ -8,10 +8,13 @@ namespace Tekken7 {
 
     static class TekkenDataValues {
         struct CharacterID {    //TODO: Fill these out as I come across them
+            const uint LAW = 1;
+            const uint YOSHIMITSU = 3;
             const uint BRYAN = 7;
             const uint HEIHACHI = 8;
             const uint KAZUYA = 9;
             const uint LARS = 18;
+            const uint PANDA = 34;
         }
 
         /// <summary>
@@ -68,6 +71,24 @@ namespace Tekken7 {
             const uint LEFT = 0;
             const uint RIGHT = 1;
         }
+
+        public static string GetCharacterString(uint charID) {
+            switch(charID) {
+                case 1:
+                    return "LAW";
+                case 2:
+                    return "??";
+                case 3:
+                    return "YOSHIMITSU";
+                    //4, 5, 6
+                case 7:
+                    return "BRYAN";
+                default:
+                    return "??";
+            }
+        }
+
+        public static string PROCESS_NAME = "TekkenGame-Win64-Shipping";
     }
 
     static class TekkenDataOffsets {

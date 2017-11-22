@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HaradasFinger"
         mc:Ignorable="d"
-        Title="Harada's Finger" Height="auto" Width="auto" WindowStyle="None" WindowStartupLocation="Manual" Topmost="True" AllowsTransparency="True" Top="0" Left="0">
+        Title="Harada's Finger" Height="200" Width="1080" WindowStyle="None" WindowStartupLocation="Manual" Topmost="True" AllowsTransparency="True" Top="0" Left="0">
     <Window.Background>
         <SolidColorBrush Opacity="0" Color="Transparent"/>
     </Window.Background>
@@ -14,18 +14,32 @@
             <local:FrameViewModel/>
         </Grid.DataContext>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
-        <Viewbox Grid.Column="0" Stretch="Uniform">
+        <StackPanel  Grid.Column="0" >
+            <Label Name="Player1Startup" Content="{Binding Player1Startup}" Background="Transparent" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
             <Label Name="Player1FrameAdvantage" Content="{Binding Player1FrameAdvantage}" HorizontalAlignment="Center" VerticalAlignment="Center"  Background="Transparent" Foreground="White" FontWeight="ExtraBold"/>
-        </Viewbox>
-        <Viewbox Grid.Column="1">
+        </StackPanel>
+        <Grid Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
             <!-- This will be used for most of the other information, such as startup, throw tech tips, anything else that would be cool-->
-        </Viewbox>
+            <Viewbox Grid.Column="0" Stretch="Uniform">
+            </Viewbox>
+            <Viewbox Grid.Column="1" Stretch="Uniform">
+                <Label Name="CurrentFrame" Content="{Binding LatestFrameNum}" FontSize="2" Background="Transparent" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+            </Viewbox>
+            <Viewbox Grid.Column="2" Stretch="Uniform">
+                <Label Name="Player2FrameAdvantage" Content="{Binding Player2FrameAdvantage}"  HorizontalAlignment="Center" VerticalAlignment="Center"  Background="Transparent" Foreground="White" FontWeight="ExtraBold"/>
+            </Viewbox>
+        </Grid>
         <Viewbox Grid.Column="2" Stretch="Uniform">
-            <Label Name="Player2FrameAdvantage" Content="{Binding Player2FrameAdvantage}"  HorizontalAlignment="Center" VerticalAlignment="Center"  Background="Transparent" Foreground="White" FontWeight="ExtraBold"/>
+            <Label Name="Player2Startup" Content="{Binding Player2Startup}" FontSize="6" Background="Transparent" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
         </Viewbox>
     </Grid>
 </Window>
