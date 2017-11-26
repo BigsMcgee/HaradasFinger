@@ -88,11 +88,21 @@
     <Compile Include="src\Memory\MemoryReader.cs" />
     <Compile Include="src\Memory\MemoryStore.cs" />
     <Compile Include="src\Memory\MemoryUtils.cs" />
+    <Compile Include="src\Tekken Input\TekkenButton.cs" />
+    <Compile Include="src\Tekken Input\TekkenDirection.cs" />
+    <Compile Include="src\Tekken Input\TekkenInput.cs" />
+    <Compile Include="src\Tekken Input\TekkenInputDefines.cs" />
     <Compile Include="src\Tekken Memory\TekkenDataController.cs" />
     <Compile Include="src\Tekken Memory\TekkenDataDefines.cs" />
     <Compile Include="src\Tekken Memory\TekkenDataModel.cs" />
     <Compile Include="src\Tekken Memory\TekkenFrame.cs" />
     <Compile Include="src\Tekken Memory\TekkenReader.cs" />
+    <Compile Include="src\Virtual Input Interface\Button.cs" />
+    <Compile Include="src\Virtual Input Interface\Direction.cs" />
+    <Compile Include="src\Virtual Input Interface\InputBuffer.cs" />
+    <Compile Include="src\Virtual Input Interface\InputItem.cs" />
+    <Compile Include="src\Virtual Input Interface\InputMap.cs" />
+    <Compile Include="src\Virtual Input Interface\XboxGamePad.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -132,6 +142,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\Game Actions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -23,7 +23,7 @@ namespace Tekken7 {
             _gameDataLogger = new LoggerConfig("TekkenGameData", false);
             logger = LogManager.GetCurrentClassLogger();
             _speech = new SpeechSynthesizer();
-
+            _speech.Rate = 3;
             if (_reader == null) {
                 Stopwatch timeout = new Stopwatch();
                 timeout.Start();
@@ -47,7 +47,7 @@ namespace Tekken7 {
         }
 
         public void Update() {
-            ArrayList eightFrames = new ArrayList();
+            TekkenFrame[] eightFrames = new TekkenFrame[8];
             TekkenFrame oneFrame = null;
             if (!_reader.UpdateMainPointers()) {
                 Reset();
@@ -61,16 +61,25 @@ namespace Tekken7 {
                     logger.Trace(ex.ToString());
                     return;
                 }
-                eightFrames.Add(oneFrame);
+                if (oneFrame.FrameNum < Int32.MaxValue)
+                    eightFrames[i] = oneFrame;
                 if (oneFrame.FrameNum > _currentFrameNum) {
                     _currentFrameNum = oneFrame.FrameNum;
                 }
             }
-            int framesAdded = _frames.AddFrames(eightFrames);
+            try {
+                int framesAdded = _frames.AddFrames(eightFrames);
+            } catch (Exception ex) {
+                logger.Debug(ex.ToString());
+            }
             _newestFrames = eightFrames;
 
             //get the frame advantage for player 1
-            GetLastMove();
+            try {
+                GetLastMove();
+            } catch (Exception ex) {
+                logger.Debug(ex.ToString());
+            }
             //SpeakP1FrameAdvantage();
         }
 
@@ -120,7 +129,10 @@ namespace Tekken7 {
             //
             //The basic idea is to read an entire list of frames for a single action.
             //Such as...Player 1 does an Electric...Can i grab every frame from start to finish of that Electric?
-            TekkenFrame newestAttackFrame = _frames.FindLatestPlayer1StartupTransition();
+            //
+            //Improvments: Get attack startup from the beginning of the moveTimer. Get the frame advantage from the begining of recovery, not the same place.
+            //              Again, try to index all of the frames for an entire move + recovery, instead of always dealing with single frames.
+            TekkenFrame newestAttackFrame = _frames.FindLatestPlayer1StartupTransition(_currentFrameNum);
             if (newestAttackFrame != null) {
                 if (newestAttackFrame != lastP1AttackFrame && newestAttackFrame.IsP1HitOutcomeNonZero) {
                     _currentP1FrameAdvantage = (int)newestAttackFrame.P2RecoveryFrames - (int)newestAttackFrame.P1RecoveryFrames;
@@ -134,7 +146,7 @@ namespace Tekken7 {
         }
 
         public int GetP2LastMove() {
-            TekkenFrame newestAttackFrame = _frames.FindLatestPlayer2StartupTransition();
+            TekkenFrame newestAttackFrame = _frames.FindLatestPlayer2StartupTransition(_currentFrameNum);
 
             if (newestAttackFrame != null) {
                 if (newestAttackFrame != lastP2AttackFrame && newestAttackFrame.IsP2HitOutcomeNonZero) {
@@ -155,7 +167,8 @@ namespace Tekken7 {
                 if (newestAttackFrame != lastAttackFrame && newestAttackFrame.IsHitOutcomeNonZero) {
                     _currentFrameAdvantage = (int)newestAttackFrame.P2RecoveryFrames - (int)newestAttackFrame.P1RecoveryFrames;
                     lastAttackFrame = newestAttackFrame;
-                    SpeakFrameAdvantage(_currentFrameAdvantage);
+                    if (!lastAttackFrame.IsEitherPlayerDead)
+                        SpeakFrameAdvantage(_currentFrameAdvantage);
                 }
             }
             return _currentFrameAdvantage;
@@ -178,7 +191,7 @@ namespace Tekken7 {
             }
         }
 
-        public ArrayList NewestFrame {
+        public TekkenFrame[] NewestFrame {
             get { return _newestFrames; }
         }
 
@@ -192,7 +205,7 @@ namespace Tekken7 {
         private static TekkenDataController _instance;
         private TekkenReader _reader;
         private TekkenFrameCollection _frames;
-        private ArrayList _newestFrames;
+        private TekkenFrame[] _newestFrames;
         private static Logger logger;
         private static LoggerConfig _gameDataLogger;
         private static TekkenFrame lastP1AttackFrame;

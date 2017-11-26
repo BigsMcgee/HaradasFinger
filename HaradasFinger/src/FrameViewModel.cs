@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using Tekken7;
 using System.Speech.Synthesis;
+using NLog;
 
 namespace HaradasFinger
 {
@@ -15,7 +16,7 @@ namespace HaradasFinger
 
         public FrameViewModel() {
             _dataController = TekkenDataController.Instance;
-            //_speech = new SpeechSynthesizer();
+            _logger = LogManager.GetCurrentClassLogger();
             _player1FrameAdvantage = ((Int64)0).ToString();
             _player2FrameAdvantage = ((Int64)0).ToString();
             //TEST
@@ -23,7 +24,11 @@ namespace HaradasFinger
                 Int64 i = 0;
                 while (true) {
                     await Task.Delay(67);
-                    _dataController.Update();
+                    try {
+                        _dataController.Update();
+                    } catch (Exception ex) {
+                        _logger.Trace(ex.ToString());
+                    }
                     Player1FrameAdvantage = _dataController.GetP1LastMove().ToString();//_dataController.Player1FrameAdvantage.ToString();
                     Player2FrameAdvantage = _dataController.GetP2LastMove().ToString();//_dataController.Player2FrameAdvantage.ToString();
                     Player1Startup = _dataController.P1Startup;
@@ -113,5 +118,7 @@ namespace HaradasFinger
 
         TekkenDataController _dataController;
         private SpeechSynthesizer _speech;
+
+        private Logger _logger;
     }
 }

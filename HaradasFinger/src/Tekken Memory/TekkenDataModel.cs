@@ -37,6 +37,10 @@ namespace Tekken7 {
             }
         }
 
+        public bool IsDead => _percentHealth == 0;
+
+        public bool IsInJuggle => false;
+
         #endregion
 
         //TODO: Create a struct thats aligned with the data block read in from memory, this will make setting the data trivial

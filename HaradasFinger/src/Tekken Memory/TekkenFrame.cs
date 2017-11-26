@@ -86,6 +86,8 @@ namespace Tekken7 {
         public bool IsP1HitOutcomeNonZero => (_player2._hitResult != 0);
         public bool IsP2HitOutcomeNonZero => (_player1._hitResult != 0);
 
+        public bool IsEitherPlayerDead => (_player1.IsDead || _player2.IsDead);
+
         //TODO: REDO THESE PROPERLY. TOOLASSISTED FIGURED IT OUT, SO CAN I
         public uint P1RecoveryFrames => (_player1._recovery - _player1._attackStartup);
         public uint P2RecoveryFrames => (_player2._recovery - _player2._attackStartup);
@@ -104,20 +106,19 @@ namespace Tekken7 {
     class TekkenFrameCollection : MemoryStore {
 
         private TekkenFrameCollection() {
-            _frameList = new MemoryFrame[100000]; //not sure what to do about array sizing yet
-            _frameDict = new Dictionary<uint, MemoryFrame>();
+            _frameList = new List<MemoryFrame>();
             logger = LogManager.GetCurrentClassLogger();
         }
 
         public void Clear() {
-            Array.Clear(_frameList, 0, _frameList.Length);
+            _frameList.Clear();
         }
 
-        public int AddFrames(ArrayList eightFrames) {
+        public int AddFrames(TekkenFrame[] eightFrames) {
             int added = 0;
-            for(int i = 0; i < 8; i++) {
+            for(int i = 0; i < eightFrames.Length; i++) {
                 if (eightFrames[i] != null) {
-                    TekkenFrame frame = eightFrames[i] as TekkenFrame;
+                    TekkenFrame frame = eightFrames[i];
                     try {
                         if (AddFrame(frame)) {
                             added++;
@@ -131,16 +132,12 @@ namespace Tekken7 {
             return added;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns>A TekkenFrame objects representing the first frame of an "attack"</returns>
-        public TekkenFrame FindLatestPlayer1StartupTransition() {
-            TekkenFrame frame = null, checkFrame = null;
-            var localFrameList = _frameList.ToArray();
-            int lastIndex = localFrameList.GetUpperBound(0);
-            for (int i = lastIndex; i > 0; --i) {
-                frame = localFrameList[i] as TekkenFrame;
+        //TODO: Refactor these, the concept of returning a single frame isn't relevant anymore. Try to make it return a block of frames which represent an "action" (aka. single button, string, combo, etc)
+        //      going to need a way to determine the difference between these different "actions"
+        public TekkenFrame FindLatestPlayer1StartupTransition(uint lastFrameRead) {
+            TekkenFrame frame = null;
+            for (uint i = (lastFrameRead); i > 0; --i) {
+                frame = (TekkenFrame)_frameList.Find(x => x.FrameNum == i);
                 if (frame == null)
                     continue;
                 if (frame.DidPlayer1Attack) {
@@ -148,7 +145,7 @@ namespace Tekken7 {
                     int jumpBack = 0;
                     jumpBack = (int)(frame.Player1._moveTimer - (int)frame.Player1._attackStartup) - 1;
                     try {
-                        frame = localFrameList[i - (jumpBack)] as TekkenFrame;
+                        frame = (TekkenFrame)_frameList.Find(x => x.FrameNum == (i - jumpBack));
                     } catch (IndexOutOfRangeException ex) {
                         //do nothing i guess
                     }
@@ -165,19 +162,17 @@ namespace Tekken7 {
         }
 
         //TODO: Consolidate the functionality of this method, repeat code is bad
-        public TekkenFrame FindLatestPlayer2StartupTransition() {
+        public TekkenFrame FindLatestPlayer2StartupTransition(uint lastFrameRead) {
             TekkenFrame frame = null;
-            var localFrameList = _frameList.ToArray();
-            int lastIndex = localFrameList.GetUpperBound(0);
-            for (int i = lastIndex; i > 0; --i) {
-                frame = localFrameList[i] as TekkenFrame;
+            for (uint i = lastFrameRead; i > 0; --i) {
+                frame = (TekkenFrame)_frameList.Find(x => x.FrameNum == i);
                 if (frame == null)
                     continue;
                 if (frame.DidPlayer2Attack) {
                     //try reading the move_timer and jumping back that far
                     int jumpBack = 0;
                     jumpBack = (int)(frame.Player2._moveTimer - (int)frame.Player2._attackStartup) - 1;
-                    frame = localFrameList[i - (jumpBack)] as TekkenFrame;
+                    frame = (TekkenFrame)_frameList.Find(x => x.FrameNum == (i - jumpBack));
                     if (frame == null)
                         continue;
                     //yay we found the start of the animation
@@ -192,8 +187,8 @@ namespace Tekken7 {
 
         public TekkenFrame FindLatestStartupTransition(uint lastFrameRead) {
             TekkenFrame retFrame = null;
-            for (uint i = lastFrameRead; i > 0; --i) {
-                retFrame = _frameList[i] as TekkenFrame;
+            for (uint i = (lastFrameRead); i > 0; --i) {
+                retFrame = (TekkenFrame)_frameList.Find(x => x.FrameNum == i);
                 if (retFrame == null)
                     continue;
                 if(retFrame.DidEitherPlayerAttack) {
@@ -204,7 +199,12 @@ namespace Tekken7 {
                         jumpback = (int)(retFrame.Player2._moveTimer - (int)retFrame.Player2._attackStartup) - 1;
                     }
 
-                    retFrame = _frameList[i - jumpback] as TekkenFrame;
+                    try {
+                        retFrame = (TekkenFrame)_frameList.Find(x => x.FrameNum == (i - jumpback));
+                    } catch (Exception ex) {
+                        logger.Debug(ex.ToString());
+                        continue;
+                    }
                     if (retFrame == null)
                         continue;
 
