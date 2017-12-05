@@ -56,10 +56,11 @@ namespace Tekken7 {
         private UInt64 _mainAddr;
         private UInt64 _gameObject;
         private UInt64 _playerAddr;
-        private const UInt64 _mainOffset = 0x033DFC40;
+        private const UInt64 _mainOffset = 0x033DED38;
 
         //TODO: These will change as read model is updated
-        private const uint PLAYER_BLOCK_SIZE    = 0xCD54;
-        private const uint GAME_BLOCK_SIZE      = 0x00C8;
+        //private const uint PLAYER_BLOCK_SIZE    = 0xCD54;
+        private const uint PLAYER_BLOCK_SIZE = (uint)TekkenDataOffsets.P2_OBJECT_OFFSET + (uint)TekkenDataOffsets.PlayerOffsets.ATTACK_STARTUP;
+        private const uint GAME_BLOCK_SIZE      = 0x00C8; //unused
     }
 }

@@ -106,18 +106,21 @@ namespace Tekken7 {
             POS_X = 0x0BF0,
             POS_Y = 0x0BF4,
             POS_Z = 0x0BF8,
-            PERCENT_HP = 0x11D8,
+            PERCENT_HP = 0x11E8,
             BUTTON_INPUT = 0x14EC,
             DIRECTIONAL_INPUT = 0x14F0,
-            ATTACK_STARTUP = 0x66A0,
+            //ATTACK_STARTUP = 0x66A0,
+            ATTACK_STARTUP = 0x6800,
         };
 
-        public const uint P2_OBJECT_OFFSET = 0x66B0;
-        public const uint ROLLBACK_FRAME_OFFSET = 0x19F70;
+        //public const uint P2_OBJECT_OFFSET = 0x66B0;
+        public const uint P2_OBJECT_OFFSET = 0x6810;
+        public const uint ROLLBACK_FRAME_OFFSET = 0x1A4F0;
 
         public enum GameStateOffsets : uint {
-            FRAME_COUNT = 0x19AD0,
-            P1_ROUND_WINS = 0x19AEC,
+            FRAME_COUNT = 0x1A050,
+            //P1_ROUND_WINS = 0x19AEC,
+            P1_ROUND_WINS = 0x1A06C,
             P2_ROUND_WINS = 0x19BB4
         }
     }

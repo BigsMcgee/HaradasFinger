@@ -29,15 +29,35 @@ namespace HaradasFinger
                     } catch (Exception ex) {
                         _logger.Trace(ex.ToString());
                     }
-                    Player1FrameAdvantage = _dataController.GetP1LastMove().ToString();//_dataController.Player1FrameAdvantage.ToString();
-                    Player2FrameAdvantage = _dataController.GetP2LastMove().ToString();//_dataController.Player2FrameAdvantage.ToString();
-                    Player1Startup = _dataController.P1Startup;
-                    Player2Startup = _dataController.P2Startup;
-                    LatestFrameNum = _dataController.CurrentFrameNum;
+                    UpdateStats();
                 }
             }
             );
-            
+        }
+
+        public async void Run() {
+            while (true) {
+                await Task.Delay(133);
+                try {
+                    _dataController.Update();
+                } catch (Exception ex) {
+                    _logger.Trace(ex.ToString());
+                }
+            }
+        }
+
+        public void UpdateStats() {
+            try {
+                _dataController.GetLastMove();
+                Player1FrameAdvantage = _dataController.GetP1LastMove().ToString();//_dataController.Player1FrameAdvantage.ToString
+                Player2FrameAdvantage = _dataController.GetP2LastMove().ToString();//_dataController.Player2FrameAdvantage.ToString();
+            } catch (Exception ex) {
+                _logger.Trace(ex.ToString());
+            }
+
+            Player1Startup = _dataController.P1Startup;
+            Player2Startup = _dataController.P2Startup;
+            LatestFrameNum = _dataController.CurrentFrameNum;
         }
 
         //Display Properties

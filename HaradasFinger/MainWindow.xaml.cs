@@ -20,10 +20,10 @@ namespace HaradasFinger
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
-        {
+        public MainWindow() {
             InitializeComponent();
             SetWindowPositionAndSize();
+            DataContext = new FrameViewModel();
             ///LIST OF POTENTIAL FEATURES
             //Current Frame Counter, not super useful to the user but it would give me an idea of the pace the data is being read
             //Attack Startup

@@ -47,6 +47,7 @@ namespace Tekken7 {
         }
 
         public void Update() {
+            Stopwatch timer = new Stopwatch();
             TekkenFrame[] eightFrames = new TekkenFrame[8];
             TekkenFrame oneFrame = null;
             if (!_reader.UpdateMainPointers()) {
@@ -67,20 +68,13 @@ namespace Tekken7 {
                     _currentFrameNum = oneFrame.FrameNum;
                 }
             }
+            Array.Sort(eightFrames);
             try {
                 int framesAdded = _frames.AddFrames(eightFrames);
             } catch (Exception ex) {
                 logger.Debug(ex.ToString());
             }
             _newestFrames = eightFrames;
-
-            //get the frame advantage for player 1
-            try {
-                GetLastMove();
-            } catch (Exception ex) {
-                logger.Debug(ex.ToString());
-            }
-            //SpeakP1FrameAdvantage();
         }
 
         private bool Reset() {

@@ -16,13 +16,17 @@ namespace Memory {
             if (frame == null)
                 return false;
             else {
-                _frameList.Add(frame);
-                return true;
+                if (!_frameList.Contains(frame)) {
+                    _frameList[frame.FrameNum % 3600] = frame; //only store 3600
+                    return true;
+                }
             }
+            return false;
         }
 
         //private List<MemoryFrame> _listFrames;
         MemoryStore _instance;
-        protected List<MemoryFrame> _frameList;
+        //protected List<MemoryFrame> _frameList;
+        protected MemoryFrame[] _frameList;
     }
 }
