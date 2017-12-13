@@ -24,6 +24,62 @@ namespace Memory {
             return false;
         }
 
+        /// <summary>
+        /// Safe way to access objects in the frame list. Returns default value if no matching object found
+        /// </summary>
+        /// <returns></returns>
+        public virtual MemoryFrame GetFrame(uint frameNum) {
+            MemoryFrame frame;
+            try {
+                frame = _frameList[frameNum % 3600];
+            } catch (Exception ex) {
+                frame = null;
+                return null;
+            }
+
+            if (frame?.FrameNum == frameNum) {
+                return frame;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Retrieves the frame from the specified index in the frame buffer. If no frame is found, returns null;
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns>MemoryFrame object found at the given index, null if not found</returns>
+        public MemoryFrame GetIndex(uint index) {
+            MemoryFrame retFrame;
+            if (index > _frameList.Length) {
+                return null;
+            }
+
+            try {
+                retFrame = _frameList[index];
+            } catch {
+                retFrame = null;
+            }
+
+            return retFrame;
+        }
+
+        /// <summary>
+        /// Gets the first object found in the buffer
+        /// </summary>
+        /// <returns>First MemoryFrame object found in the buffer, null if no object is found</returns>
+        public MemoryFrame GetFirst() {
+            return _frameList.FirstOrDefault(x => x != null);
+        }
+
+        public MemoryFrame[] FrameList {
+            get { return _frameList; }
+        }
+
+        public int Length {
+            get { return _frameList.Length; }
+        }
+
         //private List<MemoryFrame> _listFrames;
         MemoryStore _instance;
         //protected List<MemoryFrame> _frameList;
