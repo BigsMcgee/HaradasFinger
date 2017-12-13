@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Collections;
 using System.Speech.Synthesis;
 using NLog;
+using HaradasFinger;
 
 namespace Tekken7 {
     class TekkenDataController {
@@ -43,6 +44,9 @@ namespace Tekken7 {
             _frames = TekkenFrameCollection.Instance;
             _currentFrameNum = 0;
 
+            _interpreter = new GameInterpreter(_frames);
+            _interpreter.InitializeInterpreters();
+
             return success;
         }
 
@@ -75,10 +79,13 @@ namespace Tekken7 {
                 logger.Debug(ex.ToString());
             }
             _newestFrames = eightFrames;
+
+            _interpreter.UpdateActiveInterpreters();
         }
 
         private bool Reset() {
             _frames.Clear();
+            _interpreter.Reset();
             _currentP1FrameAdvantage = 0;
             _currentP1Startup = 0;
             _currentP2FrameAdvantage = 0;
@@ -198,6 +205,7 @@ namespace Tekken7 {
         #region FIELDS
         private static TekkenDataController _instance;
         private TekkenReader _reader;
+        private GameInterpreter _interpreter;
         private TekkenFrameCollection _frames;
         private TekkenFrame[] _newestFrames;
         private static Logger logger;

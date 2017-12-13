@@ -57,13 +57,11 @@ namespace Memory {
             try {
                 dwResult = MemoryInterop.ReadProcessMemory(_hProcess, readAddress, readBuf, size, lpNumberOfBytesRead);
             } catch (Exception ex) {
-                Console.WriteLine(ex.ToString());
                 throw ex;
             }
 
             if (dwResult <= 0) {
                 errorVal = MemoryInterop.GetLastError();
-                _logger.Trace("ReadProcessMemory failed with error {0}", errorVal);
             } else {
                 //turn the bytes into a valid address
                 Byte indexer = 0;
