@@ -99,6 +99,10 @@
     <Compile Include="src\FrameViewModel.cs" />
     <Compile Include="src\Game Actions\IGameAction.cs" />
     <Compile Include="src\Game Actions\SingleMove.cs" />
+    <Compile Include="src\Game Interpreter\AttackInterpreter.cs" />
+    <Compile Include="src\Game Interpreter\GameInterpreter.cs" />
+    <Compile Include="src\Game Interpreter\IInterpreter.cs" />
+    <Compile Include="src\Game Interpreter\InterpreterEventArgs.cs" />
     <Compile Include="src\Logger.cs" />
     <Compile Include="src\Memory\MemoryFrame.cs" />
     <Compile Include="src\Memory\MemoryInterop.cs" />
