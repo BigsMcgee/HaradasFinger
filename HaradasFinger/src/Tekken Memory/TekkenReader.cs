@@ -31,8 +31,6 @@ namespace Tekken7 {
         public uint ReadFrameCount(uint index) {
             ulong potentialAddr = _playerAddr + (TekkenDataOffsets.ROLLBACK_FRAME_OFFSET * index); //store these or just recalculate?
             return (uint)ReadValueAtAddress(potentialAddr + (ulong)TekkenDataOffsets.GameStateOffsets.FRAME_COUNT);
-            //potential_second_address = second_address_base + (i * MemoryAddressOffsets.rollback_frame_offset.value)
-            //potential_frame_count = self.GetValueFromAddress(processHandle, potential_second_address + GameDataAddress.frame_count.value)
         }
 
         public byte[] ReadPlayersDataBlock(uint index) {

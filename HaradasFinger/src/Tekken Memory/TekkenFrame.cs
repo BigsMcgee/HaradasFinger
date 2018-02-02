@@ -88,7 +88,7 @@ namespace Tekken7 {
 
         public bool IsEitherPlayerDead => (_player1.IsDead || _player2.IsDead);
 
-        //TODO: REDO THESE PROPERLY. TOOLASSISTED FIGURED IT OUT, SO CAN I
+        //TODO: These don't belong at the individual frame level, since it will take multiple frames to figure this out.
         public uint P1RecoveryFrames => (_player1._recovery - _player1._attackStartup);
         public uint P2RecoveryFrames => (_player2._recovery - _player2._attackStartup);
 
@@ -97,6 +97,7 @@ namespace Tekken7 {
         public PlayerDataModel Player2 => _player2;
 
         #endregion
+        //TODO: This has to change. Too brute force.
         private PlayerDataModel _player1;
         private PlayerDataModel _player2;
 

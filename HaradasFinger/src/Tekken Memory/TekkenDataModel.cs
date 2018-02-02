@@ -12,7 +12,7 @@ namespace Tekken7 {
         }
 
         #region PROPERTIES
-
+        //Once this operates as a structure instead, move these properties into the frame layer.
         public bool IsInRage {
             get { return (_rageFlag == 1); }
         }
